@@ -66,6 +66,9 @@ def get_holdings():
             if record["@tag"] == "852":
                   libraries_that_have.append(name_map[record["subfield"][0]["#text"]])
 
+      if len(libraries_that_have) == 0:
+            return "Nowhere in Summit"
+
       return ", ".join(libraries_that_have)
 
 
