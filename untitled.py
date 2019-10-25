@@ -2,9 +2,6 @@ import requests
 import xmltodict
 import json
 
-from flask import Flask, request
-app = Flask(__name__)
-
 name_map = {"01ALLIANCE_COCC": "Central Oregon Community College",
             "01ALLIANCE_CWU": "Central Washington University",
             "01ALLIANCE_CHEMEK": "Chemeketa Community College",
@@ -45,11 +42,6 @@ name_map = {"01ALLIANCE_COCC": "Central Oregon Community College",
             "01ALLIANCE_WU": "Willamette University"
             }
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
-
-@app.route('/get_holdings')
 def get_holdings():
       try:
             oclc_num = request.args["oclc_num"]
