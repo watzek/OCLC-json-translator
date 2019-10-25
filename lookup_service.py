@@ -1,3 +1,7 @@
+import requests
+import xmltodict
+import json
+
 name_map = {"01ALLIANCE_COCC": "Central Oregon Community College",
             "01ALLIANCE_CWU": "Central Washington University",
             "01ALLIANCE_CHEMEK": "Chemeketa Community College",
@@ -35,4 +39,21 @@ name_map = {"01ALLIANCE_COCC": "Central Oregon Community College",
             "01ALLIANCE_WWU": "Western Washington University",
             "01ALLIANCE_WHITC": "Whitman College",
             "01ALLIANCE_WW": "Whitworth University",
-            "01ALLIANCE_WU": "Willamette University"}
+            "01ALLIANCE_WU": "Willamette University"
+            }
+
+oclc_num = "29782466"
+
+api_url_template = "https://na01.alma.exlibrisgroup.com/view/sru/01ALLIANCE_NETWORK?version=1.2&operation=searchRetrieve&query=alma.other_system_number=(OCoLC){}".format(
+    oclc_num)
+
+res = requests.get(api_url_template)
+dict_response = xmltodict.parse(res.text)
+record_set = dict_response["searchRetrieveResponse"]["records"]["record"]["recordData"]["record"]["datafield"]
+
+libraries_that_have = []
+for record in record_set:
+      if record["@tag"] == "852":
+            libraries_that_have.append(name_map[record["subfield"][0]["#text"]])
+
+print(", ".join(libraries_that_have))
