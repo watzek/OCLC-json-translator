@@ -2,6 +2,9 @@ import requests
 import xmltodict
 import json
 
+from flask import Flask, request
+app = Flask(__name__)
+
 name_map = {"01ALLIANCE_COCC": "Central Oregon Community College",
             "01ALLIANCE_CWU": "Central Washington University",
             "01ALLIANCE_CHEMEK": "Chemeketa Community College",
@@ -42,18 +45,29 @@ name_map = {"01ALLIANCE_COCC": "Central Oregon Community College",
             "01ALLIANCE_WU": "Willamette University"
             }
 
-oclc_num = "29782466"
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
-api_url_template = "https://na01.alma.exlibrisgroup.com/view/sru/01ALLIANCE_NETWORK?version=1.2&operation=searchRetrieve&query=alma.other_system_number=(OCoLC){}".format(
-    oclc_num)
+@app.route('/get_holdings')
+def get_holdings():
+      try:
+            oclc_num = request.args["oclc_num"]
+      except KeyError as e:
+            return "no OCLC num supplied"
 
-res = requests.get(api_url_template)
-dict_response = xmltodict.parse(res.text)
-record_set = dict_response["searchRetrieveResponse"]["records"]["record"]["recordData"]["record"]["datafield"]
+      api_url_template = "https://na01.alma.exlibrisgroup.com/view/sru/01ALLIANCE_NETWORK?version=1.2&operation=searchRetrieve&query=alma.other_system_number=(OCoLC){}".format(oclc_num)
 
-libraries_that_have = []
-for record in record_set:
-      if record["@tag"] == "852":
-            libraries_that_have.append(name_map[record["subfield"][0]["#text"]])
+      res = requests.get(api_url_template)
+      dict_response = xmltodict.parse(res.text)
+      record_set = dict_response["searchRetrieveResponse"]["records"]["record"]["recordData"]["record"]["datafield"]
+      libraries_that_have = []
+      for record in record_set:
+            if record["@tag"] == "852":
+                  libraries_that_have.append(name_map[record["subfield"][0]["#text"]])
 
-print(", ".join(libraries_that_have))
+      return ", ".join(libraries_that_have)
+
+
+
+
